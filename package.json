@@ -44,7 +44,6 @@
     "prettier": "^1.16.4"
   },
   "optionalDependencies": {
-    "graphql": "^14.1.1",
-    "lodash": "^4.17.11"
+    "graphql": "^14.1.1"
   }
 }

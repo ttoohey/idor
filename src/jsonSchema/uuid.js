@@ -1,5 +1,3 @@
-import _ from 'lodash'
-
 export default function uuid(typename) {
   return {
     oneOf: [
@@ -8,7 +6,7 @@ export default function uuid(typename) {
         type: "object",
         properties: {
           __value: { type: "string", format: "uuid" },
-          __typename: { type: "string", pattern: `^${_.escapeRegExp(typename)}$` }
+          __typename: { type: "string", const: typename }
         }
       }
     ]
