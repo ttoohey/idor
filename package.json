@@ -31,17 +31,17 @@
   "author": "Gency Digital <hello@gency.com.au>",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.3",
-    "@babel/node": "^7.2.2",
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5",
     "@babel/plugin-proposal-export-default-from": "^7.2.0",
-    "@babel/plugin-transform-regenerator": "^7.0.0",
-    "@babel/preset-env": "^7.3.1",
+    "@babel/plugin-transform-regenerator": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
     "babel-eslint": "^10.0.1",
-    "eslint": "^5.14.1",
-    "eslint-config-prettier": "^4.0.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
     "local-repl": "^4.0.0",
-    "prettier": "^1.16.4"
+    "prettier": "^1.18.2"
   },
   "optionalDependencies": {
     "graphql": "^14.1.1"
