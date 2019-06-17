@@ -46,7 +46,7 @@ function idorSchema(schema, options) {
   ID.parseLiteral = ast => Node.fromString(ast.value);
 
   const setNodeScope = transformInputs((type, input, context) => {
-    if (type === ID) {
+    if (type === ID && context.scope) {
       input.scope = context.scope;
     }
     return input;
