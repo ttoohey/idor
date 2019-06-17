@@ -53,10 +53,19 @@ function idorSchema(schema, options) {
   });
 
   function toNode(type, field) {
-    if (type === ID && !field.resolve) {
-      field.resolve = (node, args, context) => {
+    if (type === ID) {
+      const name = field.name
+      const original = field.resolve || (node => node[name])
+      field.resolve = async (node, args, context, ...rest) => {
+        const value = await original(node, args, context, ...rest)
+        if (value === null || value === undefined) {
+          return value
+        }
+        if (value instanceof Node) {
+          return value
+        }
         const typename = node.__typename || node.constructor.name;
-        return new Node(node.id, typename, context.scope);
+        return new Node(value, typename, context.scope);
       };
     }
   }
@@ -64,29 +73,35 @@ function idorSchema(schema, options) {
   function toNodeList(type, field) {
     if (type === ID) {
       const original = field.resolve;
-      field.resolve = async (root, args, context) => {
-        const nodes = await Promise.resolve(original(...arguments));
+      const name = field.name
+      field.resolve = async (root, args, context, ...rest) => {
+        const nodes = await original(root, args, context, ...rest);
         return nodes.map(node => {
+          const value = node[name]
+          if (value === null || value === undefined) {
+            return value
+          }
+          if (value instanceof Node) {
+            return value
+          }
           const typename = node.__typename || node.constructor.name;
-          return new Node(node.id, typename, context.scope);
+          return new Node(value, typename, context.scope);
         });
       };
     }
   }
 
-  Object.entries(schema.getTypeMap())
-    .filter(([, type]) => type instanceof GraphQLObjectType)
-    .forEach(([, type]) => {
+  Object.values(schema.getTypeMap())
+    .filter(type => type instanceof GraphQLObjectType)
+    .forEach(type => {
+      const fields = Object.values(type.getFields())
       /**
        * Add the context scope to all ID type arguments before
        * running the type resolver.
        */
-      Object.entries(type.getFields()).forEach(([, field]) => {
-        if (!field.resolve) {
-          return;
-        }
+      fields.filter(field => field.resolve).forEach(field => {
         const original = field.resolve;
-        field.resolve = (root, args, context, info) => {
+        field.resolve = (root, args, context, ...rest) => {
           const reducer = (result, arg) =>
             Object.assign(result, {
               [arg.name]: setNodeScope(args[arg.name], arg, context)
@@ -94,13 +109,13 @@ function idorSchema(schema, options) {
           const nextArgs = field.args
             .filter(field => args.hasOwnProperty(field.name))
             .reduce(reducer, {});
-          return original(root, nextArgs, context, info);
+          return original(root, nextArgs, context, ...rest);
         };
       });
       /**
        * Convert all ID type fields to Node instances.
        */
-      Object.entries(type.getFields()).forEach(([, field]) => {
+     fields.forEach(field => {
         if (field.type instanceof GraphQLNonNull) {
           toNode(field.type.ofType, field);
         } else if (field.type instanceof GraphQLList) {
