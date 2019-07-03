@@ -151,6 +151,106 @@ const Query = {
 };
 ```
 
+# Using with GraphQL schema directives
+
+The `idor/graphql` module also contains a Schema Directive to translate ID type
+to and from the public id.
+
+```graphql
+# typeDefs.graphql
+directive @indirect (
+  type: String
+  scope: String
+) on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+type Person {
+  # Person.id will be returned as the obfuscated public ID value
+  id: ID! @indirect(type: "Person")
+}
+
+type Mutation {
+  updatePerson (
+    # the `id` argument is provided by the client as the public ID, but the
+    # `updatePerson` resolver will see the private database id.
+    id: ID @indirect(type: "Person"),
+    name: String
+    input: PersonInput
+  ) : Person
+}
+
+input PersonInput {
+  # Any field that has an argument of type PersonInput will have that argument
+  # translated from the public id to the private id.
+  id: ID! @indirect(type: "Person")
+  name: String
+}
+```
+
+```js
+import { ApolloServer } from "apollo-server";
+import { makeExecutableSchema } from "graphql-tools";
+import { IndirectIdDirective } from "idor/graphql";
+import typedefs from "./schema.graphql";
+import resolvers from "./graphql/resolvers";
+
+// set a unique salt for ID translations
+IndirectIdDirective.setOptions({ salt: process.env.APP_KEY })
+
+const schema = makeExecutableSchema({
+    typeDefs,
+    resolvers,
+    schemaDirectives: {
+      indirect: IndirectIdDirective
+    }
+  })
+);
+const context = request => {
+  // The `idor` property is used when using the `scope="CONTEXT"` argument
+  idor: contextSensitiveScope(request)
+};
+const server = new ApolloServer({ schema, context });
+```
+
+## Schema Directive API
+
+The `IndirectIdDirective` schema directive has two arguments:
+
+* `type` - when translating to a public ID, this is embedded into the public ID;
+when translating from a public ID an exception will be thrown if the embedded type
+does not match
+* `scope` - specifies how the scope argument for translating is sourced. If not
+provided the scope will be public. It can be set to 'PUBLIC' to use the public
+scope, or 'CONTEXT' to read a value from the `idor` property of the `context`
+object.
+
+`IndirectIdDirective.setOptions()` is used to initialise the idor Node constructor
+with a unique application-specific salt.
+
+`IndirectIdDirective.mergeScopeResolvers()` allows extending the possible values
+for the `scope` argument.
+
+```js
+import { IndirectIdDirective } from "idor/graphql";
+
+IndirectIdDirective.setOptions({ salt: process.env.APP_KEY })
+IndirectIdDirective.mergeScopeResolvers({
+  VIEWER: async (context, name) => {
+    return context.viewer.id
+  }
+})
+
+const typeDefs = `
+type User {
+  # `id` will be unique for each viewer
+  id: ID! @indirect(type: "User", scope: "VIEWER")
+}
+`
+
+const context = request => {
+  viewer: getUser(request.headers.authorization)
+};
+```
+
 # Using with Objection.js and Knex
 
 [Objection.js](https://vincit.github.io/objection.js/) is an ORM for Node.js
