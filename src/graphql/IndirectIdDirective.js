@@ -10,7 +10,7 @@ function spreadTuple(accum, tuple) {
 }
 
 export default class extends SchemaDirectiveVisitor {
-  static IdorClass = null
+  static IdorClass = null;
   static scopeResolvers = {
     PUBLIC: () => null,
     CONTEXT: (context, name) => {
@@ -47,23 +47,23 @@ export default class extends SchemaDirectiveVisitor {
     }
     const [[objectType, name], ...rest] = path;
     if (path.length === 1) {
-      const type = this.args.type;
+      const { raw, type } = this.args;
       const scope = this.resolveScope(context, `${objectType}.${name}`);
       const value = args[name];
-      if (value === null) {
-        return null;
+      if (value === null || value === undefined) {
+        return value;
       }
-      const { IdorClass } = this.constructor
+      const { IdorClass } = this.constructor;
       const id = IdorClass.fromString(value, scope);
       if (!id || id.typename === null) {
         throw new UserInputError(`Invalid indirect ID.`);
       }
-      if (id.typename !== type) {
+      if (id.typename !== type && type !== undefined) {
         throw new UserInputError(
           `Invalid indirect ID. Expected type "${type}" but found "${id.typename}"`
         );
       }
-      return { ...args, [name]: id.valueOf() };
+      return { ...args, [name]: raw ? id : id.valueOf() };
     }
     return {
       ...args,
@@ -78,12 +78,12 @@ export default class extends SchemaDirectiveVisitor {
   visitFieldDefinition(field, { objectType }) {
     const resolve = field.resolve;
     const type = this.args.type || objectType.name;
-    field.resolve = (...args) => {
-      const value = resolve(...args);
-      if (value === null) {
-        return null;
+    field.resolve = async (...args) => {
+      const value = await resolve(...args);
+      if (value === null || value === undefined) {
+        return value;
       }
-      const { IdorClass } = this.constructor
+      const { IdorClass } = this.constructor;
       const ctx = args[2];
       const scope = this.resolveScope(ctx, `${objectType.name}.${field.name}`);
       return new IdorClass(value, type, scope).toString();

@@ -24,10 +24,12 @@ export default function(opts) {
     if (typeof value === "string") {
       // uuid
       valueBuffer = Buffer.from(value.toLowerCase().replace(/-/g, ""), "hex");
-    } else if (typeof value === "number" && value < 2 ** 32) {
+    } else if (typeof value === "number" && value > 0 && value < 2 ** 32) {
       // unsigned int
       valueBuffer = Buffer.allocUnsafe(4);
       valueBuffer.writeUInt32BE(value, 0);
+    } else {
+      throw new Error(`Expected ID value to be a uuid or unsigned int, found ${value} (${typeof value})`)
     }
     const valueLength = Buffer.allocUnsafe(1);
     valueLength.writeUInt8(valueBuffer.length);
