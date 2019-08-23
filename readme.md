@@ -160,7 +160,8 @@ to and from the public id.
 # typeDefs.graphql
 directive @indirect (
   type: String
-  scope: String
+  scope: String = "PUBLIC"
+  raw: Boolean = false
 ) on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
 type Person {

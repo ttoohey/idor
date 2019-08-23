@@ -99,7 +99,7 @@ export default class extends SchemaDirectiveVisitor {
     this.getInputObjectParentsOfInputField(objectType).forEach(
       ([type, field]) => {
         if (path.map(([name]) => name).includes(type.name)) {
-          return
+          return;
         }
         this.walkInputFieldDefinition(field, { objectType: type }, [
           [type.name, inputField.name],
