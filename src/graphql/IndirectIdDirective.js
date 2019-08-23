@@ -98,6 +98,9 @@ export default class extends SchemaDirectiveVisitor {
     // recursively walk the schema to find where this field is used
     this.getInputObjectParentsOfInputField(objectType).forEach(
       ([type, field]) => {
+        if (path.map(([name]) => name).includes(type.name)) {
+          return
+        }
         this.walkInputFieldDefinition(field, { objectType: type }, [
           [type.name, inputField.name],
           ...path
