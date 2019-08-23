@@ -76,7 +76,7 @@ export default class extends SchemaDirectiveVisitor {
   }
 
   visitFieldDefinition(field, { objectType }) {
-    const resolve = field.resolve;
+    const resolve = field.resolve || (obj => obj[field.name]);
     const type = this.args.type || objectType.name;
     field.resolve = async (...args) => {
       const value = await resolve(...args);
