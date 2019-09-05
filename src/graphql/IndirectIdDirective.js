@@ -51,7 +51,7 @@ export default class extends SchemaDirectiveVisitor {
       const scope = this.resolveScope(context, `${objectType}.${name}`);
       const value = args[name];
       if (value === null || value === undefined) {
-        return value;
+        return args;
       }
       const { IdorClass } = this.constructor;
       const id = IdorClass.fromString(value, scope);
