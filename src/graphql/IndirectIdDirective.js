@@ -54,16 +54,31 @@ export default class extends SchemaDirectiveVisitor {
         return args;
       }
       const { IdorClass } = this.constructor;
-      const id = IdorClass.fromString(value, scope);
-      if (!id || id.typename === null) {
-        throw new UserInputError(`Invalid indirect ID.`);
+      if (Array.isArray(value)) {
+        const ids = value.map(item => IdorClass.fromString(item, scope));
+        for (let id of ids) {
+          if (!id || id.typename === null) {
+            throw new UserInputError(`Invalid indirect ID.`);
+          }
+          if (id.typename !== type && type !== undefined) {
+            throw new UserInputError(
+              `Invalid indirect ID. Expected type "${type}" but found "${id.typename}"`
+            );
+          }
+        }
+        return { ...args, [name]: raw ? ids : ids.map(id => id.valueOf()) };
+      } else {
+        const id = IdorClass.fromString(value, scope);
+        if (!id || id.typename === null) {
+          throw new UserInputError(`Invalid indirect ID.`);
+        }
+        if (id.typename !== type && type !== undefined) {
+          throw new UserInputError(
+            `Invalid indirect ID. Expected type "${type}" but found "${id.typename}"`
+          );
+        }
+        return { ...args, [name]: raw ? id : id.valueOf() };
       }
-      if (id.typename !== type && type !== undefined) {
-        throw new UserInputError(
-          `Invalid indirect ID. Expected type "${type}" but found "${id.typename}"`
-        );
-      }
-      return { ...args, [name]: raw ? id : id.valueOf() };
     }
     return {
       ...args,
