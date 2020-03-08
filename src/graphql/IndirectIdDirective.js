@@ -135,12 +135,14 @@ export default class extends SchemaDirectiveVisitor {
   }
 
   walkArgumentDefinition(field, path) {
-    const resolve = field.resolve;
-    field.resolve = (root, originalArgs, context, ...rest) => {
-      context.originalArgs = originalArgs;
-      const args = this.resolveArgument(originalArgs, path, context);
-      return resolve(root, args, context, ...rest);
-    };
+    const { resolve } = field;
+    if (resolve instanceof Function) {
+      field.resolve = (root, originalArgs, context, ...rest) => {
+        context.originalArgs = originalArgs;
+        const args = this.resolveArgument(originalArgs, path, context);
+        return resolve(root, args, context, ...rest);
+      };
+    }
   }
 
   /**
