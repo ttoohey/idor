@@ -36,7 +36,9 @@ export default function createIdorClass(opts) {
     const valueLength = Buffer.allocUnsafe(1);
     valueLength.writeUInt8(valueBuffer.length);
     const typenameBuffer = Buffer.from(typename, "utf8");
-    const cipher = crypto.createCipher(cipherAlgorithm, `${salt}:${scope}`);
+    const iv = crypto.createHash("md5").digest();
+    const key = crypto.scryptSync(scope, salt, 16, { N: 2 });
+    const cipher = crypto.createCipheriv(cipherAlgorithm, key, iv);
     const buffer = Buffer.concat([
       cipher.update(valueLength),
       cipher.update(valueBuffer),
@@ -48,7 +50,9 @@ export default function createIdorClass(opts) {
 
   function unserialize(buffer, scope) {
     const { cipher: cipherAlgorithm, salt } = options;
-    const decipher = crypto.createDecipher(cipherAlgorithm, `${salt}:${scope}`);
+    const iv = crypto.createHash("md5").digest();
+    const key = crypto.scryptSync(scope, salt, 16, { N: 2 });
+    const decipher = crypto.createDecipheriv(cipherAlgorithm, key, iv);
     const decrypted = Buffer.concat([
       decipher.update(buffer),
       decipher.final()

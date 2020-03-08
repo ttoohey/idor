@@ -94,8 +94,8 @@ describe("GraphQL @indirect directive", () => {
     const expected = {
       data: {
         users: [
-          { id: "7Xb1vhHJpWvaDUXl+tRluA" },
-          { id: "hTAOWGzEEbUuCzTNVsL4dQ" }
+          { id: "FLN1a5AnVsGFmVXQYabHxA" },
+          { id: "Re35aLsjbtwWA0KdZMw5qg" }
         ]
       }
     };
@@ -111,7 +111,7 @@ describe("GraphQL @indirect directive", () => {
     const variables = {};
     const received = await graphql(schema, query, null, {}, variables);
     const expected = {
-      data: { userIdList: ["7Xb1vhHJpWvaDUXl+tRluA", "hTAOWGzEEbUuCzTNVsL4dQ"] }
+      data: { userIdList: ["FLN1a5AnVsGFmVXQYabHxA", "Re35aLsjbtwWA0KdZMw5qg"] }
     };
     expect(received).toMatchObject(expected);
   });
@@ -126,7 +126,7 @@ describe("GraphQL @indirect directive", () => {
     const received = await graphql(schema, query, null, {}, variables);
     const expected = {
       data: {
-        userIds: { ids: ["7Xb1vhHJpWvaDUXl+tRluA", "hTAOWGzEEbUuCzTNVsL4dQ"] }
+        userIds: { ids: ["FLN1a5AnVsGFmVXQYabHxA", "Re35aLsjbtwWA0KdZMw5qg"] }
       }
     };
     expect(received).toMatchObject(expected);
@@ -141,10 +141,10 @@ describe("GraphQL @indirect directive", () => {
         }
       }
     `;
-    const variables = { id: "7Xb1vhHJpWvaDUXl+tRluA" };
+    const variables = { id: "FLN1a5AnVsGFmVXQYabHxA" };
     const received = await graphql(schema, query, null, {}, variables);
     const expected = {
-      data: { user: { id: "7Xb1vhHJpWvaDUXl+tRluA", name: "User 1" } }
+      data: { user: { id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" } }
     };
     expect(received).toMatchObject(expected);
   });
@@ -158,10 +158,10 @@ describe("GraphQL @indirect directive", () => {
         }
       }
     `;
-    const variables = { input: { id: "7Xb1vhHJpWvaDUXl+tRluA" } };
+    const variables = { input: { id: "FLN1a5AnVsGFmVXQYabHxA" } };
     const received = await graphql(schema, query, null, {}, variables);
     const expected = {
-      data: { user: { id: "7Xb1vhHJpWvaDUXl+tRluA", name: "User 1" } }
+      data: { user: { id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" } }
     };
     expect(received).toMatchObject(expected);
   });
@@ -175,10 +175,10 @@ describe("GraphQL @indirect directive", () => {
         }
       }
     `;
-    const variables = { ids: ["7Xb1vhHJpWvaDUXl+tRluA"] };
+    const variables = { ids: ["FLN1a5AnVsGFmVXQYabHxA"] };
     const received = await graphql(schema, query, null, {}, variables);
     const expected = {
-      data: { users: [{ id: "7Xb1vhHJpWvaDUXl+tRluA", name: "User 1" }] }
+      data: { users: [{ id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" }] }
     };
     expect(received).toMatchObject(expected);
   });
@@ -192,10 +192,10 @@ describe("GraphQL @indirect directive", () => {
         }
       }
     `;
-    const variables = { input: { ids: ["7Xb1vhHJpWvaDUXl+tRluA"] } };
+    const variables = { input: { ids: ["FLN1a5AnVsGFmVXQYabHxA"] } };
     const received = await graphql(schema, query, null, {}, variables);
     const expected = {
-      data: { users: [{ id: "7Xb1vhHJpWvaDUXl+tRluA", name: "User 1" }] }
+      data: { users: [{ id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" }] }
     };
     expect(received).toMatchObject(expected);
   });
@@ -209,10 +209,10 @@ describe("GraphQL @indirect directive", () => {
         }
       }
     `;
-    const variables = { inputs: [{ id: "7Xb1vhHJpWvaDUXl+tRluA" }] };
+    const variables = { inputs: [{ id: "FLN1a5AnVsGFmVXQYabHxA" }] };
     const received = await graphql(schema, query, null, {}, variables);
     const expected = {
-      data: { users: [{ id: "7Xb1vhHJpWvaDUXl+tRluA", name: "User 1" }] }
+      data: { users: [{ id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" }] }
     };
     expect(received).toMatchObject(expected);
   });

@@ -17,15 +17,15 @@ The `.typename` getter can be used to get the model class the identifier referen
 var Node = require("idor").default({ salt: "secret" });
 
 new Node(1, "User").toString();
-// '7Xb1vhHJpWvaDUXl+tRluA'
+// 'FLN1a5AnVsGFmVXQYabHxA'
 
 new Node(1, "Post").toString();
-// '6PyZcANIhp1O/ydFDXHtsQ'
+// 'Dw3BiVRByuvYjKUKA4MjwQ'
 
-Node.fromString("7Xb1vhHJpWvaDUXl+tRluA").valueOf();
+Node.fromString("FLN1a5AnVsGFmVXQYabHxA").valueOf();
 // 1
 
-Node.fromString("7Xb1vhHJpWvaDUXl+tRluA").typename;
+Node.fromString("FLN1a5AnVsGFmVXQYabHxA").typename;
 // 'User'
 ```
 
@@ -33,12 +33,12 @@ The constructor will also accept UUID values.
 
 ```js
 new Node("123e4567-e89b-12d3-a456-426655440000", "User").toString();
-// 'rfMD8jH0/sw4CFucgik+Yn8UStRYB/Mb7c8S770rpTc'
+// 'xhmWUgGswnl87h2bvkoB2LNy/QtjTfg9Cbp7dABDkrc'
 
-Node.fromString("rfMD8jH0/sw4CFucgik+Yn8UStRYB/Mb7c8S770rpTc").valueOf();
+Node.fromString("xhmWUgGswnl87h2bvkoB2LNy/QtjTfg9Cbp7dABDkrc").valueOf();
 // '123e4567-e89b-12d3-a456-426655440000'
 
-Node.fromString("rfMD8jH0/sw4CFucgik+Yn8UStRYB/Mb7c8S770rpTc").typename;
+Node.fromString("xhmWUgGswnl87h2bvkoB2LNy/QtjTfg9Cbp7dABDkrc").typename;
 // 'User'
 ```
 
@@ -49,15 +49,15 @@ exposed to the client-side.
 
 ```js
 new Node(1, "User", "private").toString();
-// 'VgC9h2T/L6HgnQzCfftsBw'
+// 'FqPuJ4ohXd2UvRvl+bvRvg'
 
-Node.fromString("VgC9h2T/L6HgnQzCfftsBw").valueOf();
+Node.fromString("FqPuJ4ohXd2UvRvl+bvRvg").valueOf();
 // null (wrong scope)
 
-Node.fromString("VgC9h2T/L6HgnQzCfftsBw", "private").valueOf();
+Node.fromString("FqPuJ4ohXd2UvRvl+bvRvg", "private").valueOf();
 // 1
 
-Node.fromString("VgC9h2T/L6HgnQzCfftsBw", "private").typename;
+Node.fromString("FqPuJ4ohXd2UvRvl+bvRvg", "private").typename;
 // 'User'
 ```
 
@@ -65,7 +65,7 @@ The default scope is 'public'.
 
 ```js
 new Node(1, "User", "public").toString();
-// '7Xb1vhHJpWvaDUXl+tRluA'
+// 'FLN1a5AnVsGFmVXQYabHxA'
 ```
 
 The `.scope` setter allows setting the scope after object initialisation
@@ -74,9 +74,9 @@ The `.scope` setter allows setting the scope after object initialisation
 const a = new Node(1, "User");
 a.scope = "private";
 a.toString();
-// "VgC9h2T/L6HgnQzCfftsBw"
+// "FqPuJ4ohXd2UvRvl+bvRvg"
 
-const b = Node.fromString("VgC9h2T/L6HgnQzCfftsBw");
+const b = Node.fromString("FqPuJ4ohXd2UvRvl+bvRvg");
 b.scope = "private";
 b.valueOf();
 // 1
@@ -91,15 +91,15 @@ from exposed Node values, or generated externally.
 var Node = require("idor").default({ salt: "S3cr3t" });
 
 new Node(1, "User").toString();
-// 'qz5Rsa0czB+vsbwc0qjUcw'
+// 'TCfNIEMg4cKgTS5cLsLXzg'
 
 new Node(1, "User", "private").toString();
-// '0IWYZLpZFgfxPA8q3aNkBQ'
+// 'HURdRJrGSiIz0/rnvO1s+g'
 
-Node.fromString("7Xb1vhHJpWvaDUXl+tRluA").valueOf();
+Node.fromString("HURdRJrGSiIz0/rnvO1s+g").valueOf();
 // null (wrong salt)
 
-Node.fromString("qz5Rsa0czB+vsbwc0qjUcw").valueOf();
+Node.fromString("TCfNIEMg4cKgTS5cLsLXzg").valueOf();
 // 1
 ```
 
