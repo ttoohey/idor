@@ -10,11 +10,14 @@
   "main": "dist",
   "files": [
     "dist/*.js",
+    "dist/*.js.map",
     "dist/**/*.js",
+    "dist/**/*.js.map",
     "**/package.json"
   ],
   "scripts": {
-    "build": "babel -d dist src",
+    "build": "babel -d dist src -s",
+    "build:dev": "babel -d dist src -s",
     "clean": "rm -rf dist",
     "lint": "eslint --ext .js --ext .json src",
     "prepare": "npm run clean && npm run build",
