@@ -103,62 +103,14 @@ Node.fromString("qz5Rsa0czB+vsbwc0qjUcw").valueOf();
 // 1
 ```
 
-# Using with Apollo Server (GraphQL)
-
-The `idor/graphql` module can be used to convert all ID types in an executable
-schema to use indirect object references. This is mostly transparent to the
-developer. Instead of seeing the private database ids, the obfuscated public ids
-are visible to the GraphQL client.
-
-Resolver functions will see idor Node objects instead of simple `id` values.
-The `id.valueOf()` function will return the private database id.
-
-```js
-import { ApolloServer } from "apollo-server";
-import { makeExecutableSchema } from "graphql-tools";
-import idor from "idor/graphql";
-import typedefs from "./schema.graphql";
-import resolvers from "./graphql/resolvers";
-
-const schema = idor(
-  makeExecutableSchema({
-    typeDefs,
-    resolvers
-  }),
-  {
-    salt: process.env.APP_KEY
-  }
-);
-const context = request => {
-  scope: contextSensitiveScope(request);
-};
-const server = new ApolloServer({ schema, context });
-```
-
-```js
-// graphql/resolvers.js
-
-const Query = {
-  node(root, args) {
-    const id = args.id.valueOf();
-    const typename = args.id.typename;
-    const Model = models.byTypename(typename);
-    return Model.findById(id);
-  },
-  user(root, { id }) {
-    return User.findById(id);
-  }
-};
-```
-
 # Using with GraphQL schema directives
 
-The `idor/graphql` module also contains a Schema Directive to translate ID type
+The IndirectIdDirective schema directive can be used to translate the ID type
 to and from the public id.
 
 ```graphql
 # typeDefs.graphql
-directive @indirect (
+directive @indirect(
   type: String
   scope: String = "PUBLIC"
   raw: Boolean = false
@@ -170,13 +122,13 @@ type Person {
 }
 
 type Mutation {
-  updatePerson (
+  updatePerson(
     # the `id` argument is provided by the client as the public ID, but the
     # `updatePerson` resolver will see the private database id.
-    id: ID @indirect(type: "Person"),
+    id: ID @indirect(type: "Person")
     name: String
     input: PersonInput
-  ) : Person
+  ): Person
 }
 
 input PersonInput {
@@ -190,7 +142,7 @@ input PersonInput {
 ```js
 import { ApolloServer } from "apollo-server";
 import { makeExecutableSchema } from "graphql-tools";
-import { IndirectIdDirective } from "idor/graphql";
+import { IndirectIdDirective } from "idor";
 import typedefs from "./schema.graphql";
 import resolvers from "./graphql/resolvers";
 
@@ -216,13 +168,13 @@ const server = new ApolloServer({ schema, context });
 
 The `IndirectIdDirective` schema directive has two arguments:
 
-* `type` - when translating to a public ID, this is embedded into the public ID;
-when translating from a public ID an exception will be thrown if the embedded type
-does not match
-* `scope` - specifies how the scope argument for translating is sourced. If not
-provided the scope will be public. It can be set to 'PUBLIC' to use the public
-scope, or 'CONTEXT' to read a value from the `idor` property of the `context`
-object.
+- `type` - when translating to a public ID, this is embedded into the public ID;
+  when translating from a public ID an exception will be thrown if the embedded type
+  does not match
+- `scope` - specifies how the scope argument for translating is sourced. If not
+  provided the scope will be public. It can be set to 'PUBLIC' to use the public
+  scope, or 'CONTEXT' to read a value from the `idor` property of the `context`
+  object.
 
 `IndirectIdDirective.setOptions()` is used to initialise the idor Node constructor
 with a unique application-specific salt.
@@ -231,7 +183,7 @@ with a unique application-specific salt.
 for the `scope` argument.
 
 ```js
-import { IndirectIdDirective } from "idor/graphql";
+import { IndirectIdDirective } from "idor";
 
 IndirectIdDirective.setOptions({ salt: process.env.APP_KEY })
 IndirectIdDirective.mergeScopeResolvers({
@@ -250,65 +202,4 @@ type User {
 const context = request => {
   viewer: getUser(request.headers.authorization)
 };
-```
-
-# Using with Objection.js and Knex
-
-[Objection.js](https://vincit.github.io/objection.js/) is an ORM for Node.js
-that builds on [Knex](http://knexjs.org/).
-
-`idor` Node objects have a `.toPostgres()` method used by the Knex query
-builder. This means it's usually not necessary to manually call the `.valueOf()`
-method on ID properties.
-
-```js
-import { Model } from "objection";
-class User extends Model {
-  static get tableName() {
-    return "user";
-  }
-}
-
-const id = Node.fromString("7Xb1vhHJpWvaDUXl+tRluA");
-User.query()
-  .findById(id)
-  .then(user => {
-    // user is an instance of the User class
-  });
-```
-
-Validation of ID properties in Object.js models can be done using `jsonSchema`.
-
-The`idor/jsonSchema` `uuid()` function returns a schema definition to validate
-UUID strings, which also accept an idor Node object validating that the
-typename property matches the correct type.
-
-The `idor/jsonSchema` `uint()` function is similar, but for unsigned integer ids.
-
-When doing this it is important to also provide the `jsonAttributes` getter
-(which defines the properties that will be serialised as a JSON string when
-being passed to the database). This is because the objection.js library will
-try to auto-detect which attributes are JSON values by using the jsonSchema;
-while idor Node objects are valid, they should _not_ be serialised.
-
-```js
-import { Model } from "objection";
-import { uuid } from "idor/jsonSchema";
-
-class User extends Model {
-  static get tableName() {
-    return "user";
-  }
-  static get jsonSchema() {
-    return {
-      type: "object",
-      properties: {
-        id: uuid("User")
-      }
-    };
-  }
-  static get jsonAttributes() {
-    return [];
-  }
-}
 ```

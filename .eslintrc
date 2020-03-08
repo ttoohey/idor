@@ -1,5 +1,5 @@
 {
-  "env": { "node": true, "es6": true },
+  "env": { "node": true, "es6": true, "jest/globals": true },
   "extends": ["eslint:recommended", "prettier"],
   "parser": "babel-eslint",
   "rules": {
@@ -9,5 +9,6 @@
         "allow": ["log", "warn", "error"]
       }
     ]
-  }
+  },
+  "plugins": ["jest"]
 }

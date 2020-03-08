@@ -1,28 +1,27 @@
 {
   "name": "idor",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "A type-based ID obfuscation library to prevent insecure direct object references (IDOR)",
   "homepage": "https://github.com/ttoohey/idor",
   "repository": {
     "type": "git",
     "url": "https://github.com/ttoohey/idor.git"
   },
-  "main": "dist",
+  "main": "lib",
   "files": [
-    "dist/*.js",
-    "dist/*.js.map",
-    "dist/**/*.js",
-    "dist/**/*.js.map",
-    "**/package.json"
+    "lib/*.js",
+    "lib/*.js.map",
+    "lib/**/*.js",
+    "lib/**/*.js.map"
   ],
   "scripts": {
-    "build": "babel -d dist src -s",
-    "build:dev": "babel -d dist src -s",
-    "clean": "rm -rf dist",
+    "build": "babel -d lib src",
+    "build:dev": "babel -d lib src -s",
+    "clean": "rm -rf lib && mkdir lib",
     "lint": "eslint --ext .js --ext .json src",
     "prepare": "npm run clean && npm run build",
     "repl": "babel-node node_modules/.bin/local-repl",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [
     "idor",
@@ -34,20 +33,23 @@
   "author": "Gency Digital <hello@gency.com.au>",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.6.0",
-    "@babel/core": "^7.6.0",
-    "@babel/node": "^7.6.1",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/plugin-proposal-export-default-from": "^7.5.2",
-    "@babel/plugin-transform-regenerator": "^7.4.5",
-    "@babel/preset-env": "^7.6.0",
-    "babel-eslint": "^10.0.3",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.7",
+    "@babel/node": "^7.8.7",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-export-default-from": "^7.8.3",
+    "@babel/plugin-transform-regenerator": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+    "babel-eslint": "^10.1.0",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-jest": "^23.8.2",
+    "jest": "^25.1.0",
     "local-repl": "^4.0.0",
-    "prettier": "^1.18.2"
+    "prettier": "^1.19.1"
   },
   "optionalDependencies": {
-    "graphql": ">= 14.1.1"
+    "apollo-server": "^2.11.0",
+    "graphql": "^14.6.0"
   }
 }
