@@ -97,15 +97,25 @@ export default class extends SchemaDirectiveVisitor {
   visitFieldDefinition(field, { objectType }) {
     const { resolve = defaultFieldResolver } = field;
     const type = this.args.type || objectType.name;
-    field.resolve = async (...args) => {
-      const value = await resolve(...args);
+    const getIndirectIdResolver = (_, context) => value => {
       if (value === null || value === undefined) {
         return value;
       }
       const { IdorClass } = this.constructor;
-      const ctx = args[2];
-      const scope = this.resolveScope(ctx, `${objectType.name}.${field.name}`);
+      const scope = this.resolveScope(
+        context,
+        `${objectType.name}.${field.name}`
+      );
       return new IdorClass(value, type, scope).toString();
+    };
+    field.resolve = (...args) => {
+      const result = resolve(...args);
+      const resolveIndirectId = getIndirectIdResolver(...args);
+      if (Promise.resolve(result) === result) {
+        return result.then(resolveIndirectId);
+      } else {
+        return resolveIndirectId(result);
+      }
     };
   }
 
