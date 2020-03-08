@@ -1,5 +1,9 @@
 import { SchemaDirectiveVisitor, UserInputError } from "apollo-server";
-import { GraphQLInputObjectType, GraphQLObjectType } from "graphql";
+import {
+  GraphQLInputObjectType,
+  GraphQLObjectType,
+  defaultFieldResolver
+} from "graphql";
 
 function isTypeOf(a, b) {
   return a === b || a.ofType === b;
@@ -91,7 +95,7 @@ export default class extends SchemaDirectiveVisitor {
   }
 
   visitFieldDefinition(field, { objectType }) {
-    const resolve = field.resolve || (obj => obj[field.name]);
+    const { resolve = defaultFieldResolver } = field;
     const type = this.args.type || objectType.name;
     field.resolve = async (...args) => {
       const value = await resolve(...args);
