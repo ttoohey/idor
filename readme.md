@@ -1,6 +1,6 @@
 # Basic usage
 
-The idor Node constructor accepts an unsigned int or UUID string identifier, and
+The Idor constructor accepts an unsigned int or UUID string identifier, and
 a model type name that identifies the model class the identifier references.
 
 The `.toString()` method returns a string that is safe to expose to the client side
@@ -8,75 +8,75 @@ The `.toString()` method returns a string that is safe to expose to the client s
 
 The `.valueOf()` method returns the original value (the "private id").
 
-`Node.fromString()` can be used to create a new Node instance from a "public id"
+`Idor.fromString()` can be used to create a new Idor instance from a "public id"
 string.
 
 The `.typename` getter can be used to get the model class the identifier references.
 
 ```js
-var Node = require("idor").default({ salt: "secret" });
+var Idor = require("idor").default({ salt: "secret" });
 
-new Node(1, "User").toString();
+new Idor(1, "User").toString();
 // 'FLN1a5AnVsGFmVXQYabHxA'
 
-new Node(1, "Post").toString();
+new Idor(1, "Post").toString();
 // 'Dw3BiVRByuvYjKUKA4MjwQ'
 
-Node.fromString("FLN1a5AnVsGFmVXQYabHxA").valueOf();
+Idor.fromString("FLN1a5AnVsGFmVXQYabHxA").valueOf();
 // 1
 
-Node.fromString("FLN1a5AnVsGFmVXQYabHxA").typename;
+Idor.fromString("FLN1a5AnVsGFmVXQYabHxA").typename;
 // 'User'
 ```
 
 The constructor will also accept UUID values.
 
 ```js
-new Node("123e4567-e89b-12d3-a456-426655440000", "User").toString();
+new Idor("123e4567-e89b-12d3-a456-426655440000", "User").toString();
 // 'xhmWUgGswnl87h2bvkoB2LNy/QtjTfg9Cbp7dABDkrc'
 
-Node.fromString("xhmWUgGswnl87h2bvkoB2LNy/QtjTfg9Cbp7dABDkrc").valueOf();
+Idor.fromString("xhmWUgGswnl87h2bvkoB2LNy/QtjTfg9Cbp7dABDkrc").valueOf();
 // '123e4567-e89b-12d3-a456-426655440000'
 
-Node.fromString("xhmWUgGswnl87h2bvkoB2LNy/QtjTfg9Cbp7dABDkrc").typename;
+Idor.fromString("xhmWUgGswnl87h2bvkoB2LNy/QtjTfg9Cbp7dABDkrc").typename;
 // 'User'
 ```
 
 # Scoped usage
 
-Scoping node IDs allows adding an additional layer of abstraction on identifiers
+Scoping Idor IDs allows adding an additional layer of abstraction on identifiers
 exposed to the client-side.
 
 ```js
-new Node(1, "User", "private").toString();
+new Idor(1, "User", "private").toString();
 // 'FqPuJ4ohXd2UvRvl+bvRvg'
 
-Node.fromString("FqPuJ4ohXd2UvRvl+bvRvg").valueOf();
+Idor.fromString("FqPuJ4ohXd2UvRvl+bvRvg").valueOf();
 // null (wrong scope)
 
-Node.fromString("FqPuJ4ohXd2UvRvl+bvRvg", "private").valueOf();
+Idor.fromString("FqPuJ4ohXd2UvRvl+bvRvg", "private").valueOf();
 // 1
 
-Node.fromString("FqPuJ4ohXd2UvRvl+bvRvg", "private").typename;
+Idor.fromString("FqPuJ4ohXd2UvRvl+bvRvg", "private").typename;
 // 'User'
 ```
 
 The default scope is 'public'.
 
 ```js
-new Node(1, "User", "public").toString();
+new Idor(1, "User", "public").toString();
 // 'FLN1a5AnVsGFmVXQYabHxA'
 ```
 
 The `.scope` setter allows setting the scope after object initialisation
 
 ```js
-const a = new Node(1, "User");
+const a = new Idor(1, "User");
 a.scope = "private";
 a.toString();
 // "FqPuJ4ohXd2UvRvl+bvRvg"
 
-const b = Node.fromString("FqPuJ4ohXd2UvRvl+bvRvg");
+const b = Idor.fromString("FqPuJ4ohXd2UvRvl+bvRvg");
 b.scope = "private";
 b.valueOf();
 // 1
@@ -85,21 +85,21 @@ b.valueOf();
 # Protect exposed identifiers
 
 The application SHOULD set a unique salt to ensure identifiers cannot be computed
-from exposed Node values, or generated externally.
+from exposed Idor values, or generated externally.
 
 ```js
-var Node = require("idor").default({ salt: "S3cr3t" });
+var Idor = require("idor").default({ salt: "S3cr3t" });
 
-new Node(1, "User").toString();
+new Idor(1, "User").toString();
 // 'TCfNIEMg4cKgTS5cLsLXzg'
 
-new Node(1, "User", "private").toString();
+new Idor(1, "User", "private").toString();
 // 'HURdRJrGSiIz0/rnvO1s+g'
 
-Node.fromString("HURdRJrGSiIz0/rnvO1s+g").valueOf();
+Idor.fromString("HURdRJrGSiIz0/rnvO1s+g").valueOf();
 // null (wrong salt)
 
-Node.fromString("TCfNIEMg4cKgTS5cLsLXzg").valueOf();
+Idor.fromString("TCfNIEMg4cKgTS5cLsLXzg").valueOf();
 // 1
 ```
 
@@ -143,8 +143,8 @@ input PersonInput {
 import { ApolloServer } from "apollo-server";
 import { makeExecutableSchema } from "graphql-tools";
 import { IndirectIdDirective } from "idor";
-import typedefs from "./schema.graphql";
-import resolvers from "./graphql/resolvers";
+import typeDefs from "./typeDefs";
+import resolvers from "./resolvers";
 
 // set a unique salt for ID translations
 IndirectIdDirective.setOptions({ salt: process.env.APP_KEY })
@@ -176,7 +176,7 @@ The `IndirectIdDirective` schema directive has two arguments:
   scope, or 'CONTEXT' to read a value from the `idor` property of the `context`
   object.
 
-`IndirectIdDirective.setOptions()` is used to initialise the idor Node constructor
+`IndirectIdDirective.setOptions()` is used to initialise the idor Idor constructor
 with a unique application-specific salt.
 
 `IndirectIdDirective.mergeScopeResolvers()` allows extending the possible values

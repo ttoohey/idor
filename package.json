@@ -27,8 +27,7 @@
     "idor",
     "globalid",
     "relayid",
-    "graphql",
-    "objectionjs"
+    "graphql"
   ],
   "author": "Gency Digital <hello@gency.com.au>",
   "license": "ISC",
