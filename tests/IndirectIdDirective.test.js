@@ -29,6 +29,11 @@ describe("GraphQL @indirect directive", () => {
     input UserInput {
       id: ID @indirect(type: "User")
       ids: [ID] @indirect(type: "User")
+      sub: SubInput
+    }
+
+    input SubInput {
+      subId: ID @indirect(type: "User")
     }
 
     type Query {
@@ -47,6 +52,9 @@ describe("GraphQL @indirect directive", () => {
       user(root, { id, input }) {
         if (input) {
           id = input.id;
+          if (input.sub) {
+            id = input.sub.subId;
+          }
         }
         return users.find(user => user.id === id);
       },
@@ -213,6 +221,23 @@ describe("GraphQL @indirect directive", () => {
     const received = await graphql(schema, query, null, {}, variables);
     const expected = {
       data: { users: [{ id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" }] }
+    };
+    expect(received).toMatchObject(expected);
+  });
+
+  test("arguments can contain a nested object with an obfuscated ID", async () => {
+    const query = `
+      query($input: UserInput) {
+        user(input: $input) {
+          id
+          name
+        }
+      }
+    `;
+    const variables = { input: { sub: { subId: "FLN1a5AnVsGFmVXQYabHxA" } } };
+    const received = await graphql(schema, query, null, {}, variables);
+    const expected = {
+      data: { user: { id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" } }
     };
     expect(received).toMatchObject(expected);
   });

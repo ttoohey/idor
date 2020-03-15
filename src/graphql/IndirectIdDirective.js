@@ -89,10 +89,11 @@ export default class extends SchemaDirectiveVisitor {
       }
       return resolveIndirectIdArgument(args[name], args);
     }
-    return {
-      ...args,
-      [name]: this.resolveArgument(args[name], rest, context)
-    };
+    const value = this.resolveArgument(args[name], rest, context);
+    if (value === undefined) {
+      return args;
+    }
+    return { ...args, [name]: value };
   }
 
   visitArgumentDefinition(arg, { field }) {
@@ -139,7 +140,7 @@ export default class extends SchemaDirectiveVisitor {
           return;
         }
         this.walkInputFieldDefinition(field, { objectType: type }, [
-          [type.name, inputField.name],
+          [objectType.name, inputField.name],
           ...path
         ]);
       }
