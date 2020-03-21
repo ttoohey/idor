@@ -39,15 +39,17 @@
     "@babel/plugin-proposal-export-default-from": "^7.8.3",
     "@babel/plugin-transform-regenerator": "^7.8.7",
     "@babel/preset-env": "^7.8.7",
+    "apollo-server": "^2.11.0",
     "babel-eslint": "^10.1.0",
-    "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-jest": "^23.8.2",
+    "eslint": "^5.16.0",
+    "graphql": "^14.6.0",
     "jest": "^25.1.0",
     "local-repl": "^4.0.0",
     "prettier": "^1.19.1"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "apollo-server": "^2.11.0",
     "graphql": "^14.6.0"
   }

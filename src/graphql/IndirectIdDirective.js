@@ -181,7 +181,7 @@ export default class extends SchemaDirectiveVisitor {
   getInputObjectParentsOfInputField(objectType) {
     return (
       Object.values(this.schema.getTypeMap())
-        .filter(type => type instanceof GraphQLInputObjectType)
+        .filter(type => type.constructor.name === GraphQLInputObjectType.name)
         // map to (type, fields[]) tuples
         .map(type => [
           type,
@@ -207,7 +207,7 @@ export default class extends SchemaDirectiveVisitor {
   getObjectParentsOfInputField(objectType) {
     return (
       Object.values(this.schema.getTypeMap())
-        .filter(type => type instanceof GraphQLObjectType)
+        .filter(type => type.constructor.name === GraphQLObjectType.name)
         // map to (type, fields[]) tuples
         .map(type => [
           type,
