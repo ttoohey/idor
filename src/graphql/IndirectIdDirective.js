@@ -6,7 +6,7 @@ import {
 } from "graphql";
 
 function isTypeOf(a, b) {
-  return a === b || a.ofType === b;
+  return a === b || (a.ofType && isTypeOf(a.ofType, b));
 }
 function spreadTuple(accum, tuple) {
   const list = tuple.pop();

@@ -26,14 +26,20 @@ describe("GraphQL @indirect directive", () => {
       ids: [ID] @indirect(type: "User")
     }
 
+    input SubInput {
+      subId: ID @indirect(type: "User")
+    }
+
     input UserInput {
       id: ID @indirect(type: "User")
       ids: [ID] @indirect(type: "User")
       sub: SubInput
+      subs: [SubInput]
     }
 
-    input SubInput {
-      subId: ID @indirect(type: "User")
+    input UserWithSubsInput {
+      subs: [SubInput]
+      nonnullSubs: [SubInput!]
     }
 
     type Query {
@@ -45,6 +51,7 @@ describe("GraphQL @indirect directive", () => {
       ): [User]
       userIds: UserIds
       userIdList: [ID] @indirect(type: "User")
+      usersWithSub(input: UserWithSubsInput!): [User]
     }
   `;
   const resolvers = {
@@ -61,6 +68,12 @@ describe("GraphQL @indirect directive", () => {
       users(root, { ids, input, inputs }) {
         if (input) {
           ids = input.ids;
+          if (input.subs) {
+            ids = input.subs.map(({ subId }) => subId);
+          }
+          if (input.nonnullSubs) {
+            ids = input.nonnullSubs.map(({ subId }) => subId);
+          }
         }
         if (inputs) {
           ids = inputs.map(({ id }) => id);
@@ -75,6 +88,9 @@ describe("GraphQL @indirect directive", () => {
       },
       userIdList() {
         return users.map(({ id }) => id);
+      },
+      usersWithSub(...args) {
+        return resolvers.Query.users(...args);
       }
     }
   };
@@ -227,17 +243,55 @@ describe("GraphQL @indirect directive", () => {
 
   test("arguments can contain a nested object with an obfuscated ID", async () => {
     const query = `
-      query($input: UserInput) {
-        user(input: $input) {
+        query($input: UserInput) {
+          user(input: $input) {
+            id
+            name
+          }
+        }
+      `;
+    const variables = { input: { sub: { subId: "FLN1a5AnVsGFmVXQYabHxA" } } };
+    const received = await graphql(schema, query, null, {}, variables);
+    const expected = {
+      data: { user: { id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" } }
+    };
+    expect(received).toMatchObject(expected);
+  });
+
+  test("arguments can contain a nested list of objects with an obfuscated ID", async () => {
+    const query = `
+      query($input: UserWithSubsInput!) {
+        usersWithSub(input: $input) {
           id
           name
         }
       }
     `;
-    const variables = { input: { sub: { subId: "FLN1a5AnVsGFmVXQYabHxA" } } };
+    const variables = {
+      input: { subs: [{ subId: "FLN1a5AnVsGFmVXQYabHxA" }] }
+    };
     const received = await graphql(schema, query, null, {}, variables);
     const expected = {
-      data: { user: { id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" } }
+      data: { usersWithSub: [{ id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" }] }
+    };
+    expect(received).toMatchObject(expected);
+  });
+
+  test("arguments can contain a nested list of nonnull objects with an obfuscated ID", async () => {
+    const query = `
+      query($input: UserWithSubsInput!) {
+        usersWithSub(input: $input) {
+          id
+          name
+        }
+      }
+    `;
+    const variables = {
+      input: { nonnullSubs: [{ subId: "FLN1a5AnVsGFmVXQYabHxA" }] }
+    };
+    const received = await graphql(schema, query, null, {}, variables);
+    const expected = {
+      data: { usersWithSub: [{ id: "FLN1a5AnVsGFmVXQYabHxA", name: "User 1" }] }
     };
     expect(received).toMatchObject(expected);
   });
