@@ -5,7 +5,7 @@
       {
         "useBuiltIns": "entry",
         "targets": {
-          "node": "8"
+          "node": "12"
         },
         "corejs": 2
       }
