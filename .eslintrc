@@ -1,7 +1,11 @@
 {
   "env": { "node": true, "es6": true, "jest/globals": true },
-  "extends": ["eslint:recommended", "prettier"],
-  "parser": "babel-eslint",
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended",
+    "plugin:jest/recommended"
+  ],
+  "parser": "@babel/eslint-parser",
   "rules": {
     "no-console": [
       "error",

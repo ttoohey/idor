@@ -5,7 +5,7 @@ export default function createIdorClass(opts) {
     salt: "",
     defaultScope: "public",
     cipher: "aes128",
-    ...opts
+    ...opts,
   };
 
   function loadValueAndTypename(o) {
@@ -43,7 +43,7 @@ export default function createIdorClass(opts) {
       cipher.update(valueLength),
       cipher.update(valueBuffer),
       cipher.update(typenameBuffer),
-      cipher.final()
+      cipher.final(),
     ]);
     return buffer;
   }
@@ -55,7 +55,7 @@ export default function createIdorClass(opts) {
     const decipher = crypto.createDecipheriv(cipherAlgorithm, key, iv);
     const decrypted = Buffer.concat([
       decipher.update(buffer),
-      decipher.final()
+      decipher.final(),
     ]);
     const valueLength = decrypted.readUInt8(0);
     const valueBuffer = decrypted.slice(1, 1 + valueLength);
@@ -134,6 +134,13 @@ export default function createIdorClass(opts) {
       return new this()
         .fromString(string)
         .setScope(scope || options.defaultScope);
+    }
+
+    static toString(value, typename, scope = null) {
+      if (arguments.length === 0) {
+        return Object.toString.call(this);
+      }
+      return new this(value, typename, scope).toString();
     }
 
     /**
