@@ -61,12 +61,13 @@ export default function createIdorClass(opts) {
       decipher.final(),
     ]);
     const valueLength = decrypted.readUInt8(0);
-    const valueBuffer = decrypted.slice(1, 1 + valueLength);
+    const valueBuffer = decrypted.subarray(1, 1 + valueLength);
     let value;
     if (valueLength === 4) {
       // unsigned int
       value = valueBuffer.readUInt32BE(0);
     } else if (valueLength === 8) {
+      // BigInt
       value = valueBuffer.readBigUInt64BE(0);
     } else if (valueLength === 16) {
       // uuid
@@ -74,7 +75,7 @@ export default function createIdorClass(opts) {
         .toString("hex")
         .replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, "$1-$2-$3-$4-$5");
     }
-    const typename = decrypted.slice(1 + valueLength).toString("utf8");
+    const typename = decrypted.subarray(1 + valueLength).toString("utf8");
     return [value, typename];
   }
 
@@ -84,7 +85,8 @@ export default function createIdorClass(opts) {
      * encrypted. The scope provides a part of the encryption key (the other part
      * is from the password set with .setPassword()).
      *
-     * The value must be either an unsigned int (32 bit) or a UUID string.
+     * The value must be either an unsigned int (32 bit), unsigned BigInt (64
+     * bit) or a UUID string (128 bit).
      *
      * The typename should be a string that identifies the object class to which
      * the value belongs. If a value is provided, but typename is null, the
@@ -93,8 +95,8 @@ export default function createIdorClass(opts) {
      * ```
      * class MyType extends Idor {}
      * class OtherType extends Idor {}
-     * new MyType(1).__typename === 'MyType'
-     * new OtherType(1).__typename === 'OtherType'
+     * new MyType(1).typename === 'MyType'
+     * new OtherType(1).typename === 'OtherType'
      * ```
      *
      * If an Idor instance is provided as the value parameter, the
@@ -133,7 +135,7 @@ export default function createIdorClass(opts) {
      *
      * @param  {string} string       A string created from .toString()
      * @param  {string} [scope=null] Set the encryption scope
-     * @return {Node}                A new Node instance
+     * @return {Idor}                A new Idor instance
      */
     static fromString(string, scope = null) {
       return new this()
@@ -141,6 +143,14 @@ export default function createIdorClass(opts) {
         .setScope(scope || options.defaultScope);
     }
 
+    /**
+     * Shortcut for creating a new instance and returning it's public value
+     *
+     * @param {mixed}   [value=null]    An unsigned int or UUID string
+     * @param {string}  [typename=null] The object type
+     * @param {scope}   [scope=null]    The encryption scope
+     * @returns {string}
+     */
     static toString(value, typename, scope = null) {
       if (arguments.length === 0) {
         return Object.toString.call(this);
@@ -151,7 +161,7 @@ export default function createIdorClass(opts) {
     /**
      * Get the private value
      *
-     * @return {number|string} An unsigned int or UUID string
+     * @return {number|BigInt|string} An unsigned int or UUID string
      */
     valueOf() {
       if (this.__value === null) {
@@ -185,7 +195,7 @@ export default function createIdorClass(opts) {
      * Loads the value from a public string.
      *
      * @param  {string} string  A string created from .toString()
-     * @return {Node}           The object instance for chaining
+     * @return {Idor}           The object instance for chaining
      */
     fromString(string) {
       this.__buffer = Buffer.from(string, "base64");
@@ -211,7 +221,7 @@ export default function createIdorClass(opts) {
      *   id.valueOf() === 1
      *
      * @param  {string} scope The new encryption scope
-     * @return {Node}         This object instance for chaining
+     * @return {Idor}         This object instance for chaining
      */
     setScope(scope) {
       this.__scope = scope;
@@ -224,6 +234,12 @@ export default function createIdorClass(opts) {
       }
       return this;
     }
+
+    /**
+     * setter alias for `setScope`
+     *
+     * @param {string} scope The new encryption scope
+     */
     set scope(scope) {
       this.setScope(scope);
     }
