@@ -27,6 +27,13 @@ test("Value produces different strings", () => {
   expect(received).toMatchObject(expected);
 });
 
+test("Accepts BigInt values", () => {
+  const Idor = idor({ salt: "secret" });
+  const received = new Idor(1n, "User").toString();
+  const expected = "SpSYCHJFD4XD+L4c1OIRUQ";
+  expect(received).toEqual(expected);
+});
+
 test("Accepts UUID values", () => {
   const Idor = idor({ salt: "secret" });
   const received = new Idor(
@@ -64,6 +71,16 @@ test("Can parse a scoped obfuscated ID ", () => {
     Idor.fromString("FqPuJ4ohXd2UvRvl+bvRvg", "private").typename,
   ];
   const expected = [1, "User"];
+  expect(received).toMatchObject(expected);
+});
+
+test("Can parse an obfuscated BigInt", () => {
+  const Idor = idor({ salt: "secret" });
+  const received = [
+    Idor.fromString("SpSYCHJFD4XD+L4c1OIRUQ").valueOf(),
+    Idor.fromString("SpSYCHJFD4XD+L4c1OIRUQ").typename,
+  ];
+  const expected = [1n, "User"];
   expect(received).toMatchObject(expected);
 });
 

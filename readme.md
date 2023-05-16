@@ -1,7 +1,8 @@
 # Basic usage
 
-The Idor constructor accepts an unsigned int or UUID string identifier, and
-a model type name that identifies the model class the identifier references.
+The `Idor` constructor accepts an unsigned int, unsigned BigInt, or UUID string
+identifier, and a model type name that identifies the model class the identifier
+references.
 
 The `.toString()` method returns a string that is safe to expose to the client side
 (the "public id").
@@ -29,9 +30,18 @@ Idor.fromString("FLN1a5AnVsGFmVXQYabHxA").typename;
 // 'User'
 ```
 
-The constructor will also accept UUID values.
+The constructor will also accept BigInt and UUID values.
 
 ```js
+new Idor(1n, "User").toString()
+// 'SpSYCHJFD4XD+L4c1OIRUQ'
+
+Idor.fromString("SpSYCHJFD4XD+L4c1OIRUQ").valueOf()
+// 1n
+
+Idor.fromString("SpSYCHJFD4XD+L4c1OIRUQ").typename
+// 'User'
+
 new Idor("123e4567-e89b-12d3-a456-426655440000", "User").toString();
 // 'xhmWUgGswnl87h2bvkoB2LNy/QtjTfg9Cbp7dABDkrc'
 

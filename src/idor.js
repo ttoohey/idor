@@ -24,7 +24,10 @@ export default function createIdorClass(opts) {
     if (typeof value === "string") {
       // uuid
       valueBuffer = Buffer.from(value.toLowerCase().replace(/-/g, ""), "hex");
-    } else if (typeof value === "number" && value > 0 && value < 2 ** 32) {
+    } else if (typeof value === "bigint" && value >= 0 && value < 2n ** 64n) {
+      valueBuffer = Buffer.allocUnsafe(8);
+      valueBuffer.writeBigUInt64BE(value, 0);
+    } else if (typeof value === "number" && value >= 0 && value < 2 ** 32) {
       // unsigned int
       valueBuffer = Buffer.allocUnsafe(4);
       valueBuffer.writeUInt32BE(value, 0);
@@ -63,6 +66,8 @@ export default function createIdorClass(opts) {
     if (valueLength === 4) {
       // unsigned int
       value = valueBuffer.readUInt32BE(0);
+    } else if (valueLength === 8) {
+      value = valueBuffer.readBigUInt64BE(0);
     } else if (valueLength === 16) {
       // uuid
       value = valueBuffer
